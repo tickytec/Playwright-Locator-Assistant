@@ -1,83 +1,111 @@
-Instantly generate and verify the best Playwright locators for any element on the page.
+# Playwright Locator Assistant
 
-Playwright Locator Assistant helps QA engineers and developers generate, verify, and manage Playwright locators directly from the browser — no DevTools diving, no manual selector writing.
+The ultimate browser extension for generating, verifying, and managing stable Playwright locators — without ever opening DevTools.
 
+Designed for QA engineers and developers who want resilient, readable tests written faster.
 
- GENERATE THE BEST LOCATOR INSTANTLY
+---
 
-Click any element on the page to capture it, or use the keyboard shortcut (Alt+Shift+L on Windows/Linux, ⌘+Shift+L on Mac) to lock in the element under your cursor without clicking — keeping dropdowns, menus, and hover states open.
+## Why This Extension?
 
-The extension automatically picks the most robust Playwright strategy available, in priority order:
+Writing stable end-to-end tests is hard. CSS selectors break on every redesign, and manually crafting the right Playwright locator takes time. This extension embeds Playwright's best practices directly in your browser: it follows the official locator priority, skips dynamic values that would break tests, and tells you instantly whether your locator is unique.
 
-  • getByTestId — data-testid, data-cy, data-qa, data-test, data-automation-id, data-test-id
-  • getByRole with accessible name — buttons, links, headings, inputs, and more
-  • getByLabel — for form controls associated with a <label>
-  • getByPlaceholder, getByAltText, getByTitle
-  • Native <select> dropdowns — generates a ready-to-use selectOption() call
-  • Table cells — row-anchored via .filter({ hasText }) so locators survive row reordering
-  • Chained ancestor locators — when no global unique match exists
-  • CSS selector fallback — with a clear warning to add a test ID
+---
 
+## Features
 
- SKIPS DYNAMIC VALUES AUTOMATICALLY
+### Intelligent Locator Generation
 
-Exchange rates, prices, dates, times, and counters are detected at capture time and excluded from the locator. Your tests stay green across data refreshes.
+Click any element — the extension automatically picks the most resilient strategy, in priority order:
 
+1. `getByTestId` — detects `data-testid`, `data-cy`, `data-qa`, `data-test`, `data-automation-id`, `data-test-id`
+2. `getByRole` with accessible name — buttons, links, headings, inputs, and more
+3. `getByLabel` — for form controls associated with a `<label>`
+4. `getByPlaceholder`, `getByAltText`, `getByTitle`
+5. `getByText` for static text content
+6. Chained ancestor locator — when no global unique match exists
+7. CSS selector fallback — with a warning to add a `data-testid`
 
- UNIQUENESS BADGE
+### Keyboard Shortcut — Capture Without Clicking
 
-Every captured locator is checked against the current page instantly:
+Hover over any element and press `Alt+Shift+L` (Windows/Linux) or `⌘+Shift+L` (Mac) to capture it instantly — without a click. Dropdowns, menus, and hover states stay open.
 
-  ✓ 1  — unique match, safe to use
-  ⚠ 3  — not unique, consider a more specific locator
-  ✗ 0  — no match found (page state may have changed)
+### Dynamic Value Filtering
 
+Exchange rates, prices, dates, times, and counters are detected at capture time and excluded from locator text. Tests stay green across data refreshes.
 
- ALTERNATIVE STRATEGIES
+### Uniqueness Badge
 
-Expand the "Alternatives" panel below any captured locator to see up to 5 other valid strategies for the same element — each with its own Copy button.
+Every captured locator is checked against the live page immediately:
 
+- `✓ 1` — unique match, safe to use
+- `⚠ N` — not unique, consider a more specific locator
+- `✗ 0` — no match (page state may have changed)
 
- VARIABLES FOR PARAMETERISED TESTS
+### Alternative Strategies
 
-One click on the { } button converts table cell values, row identifiers, and select options into named variables (rowText, cellValue, optionText in JS; row_text, cell_value, option_text in Python) — ready to paste into a parametrised test function.
+Expand the **Alternatives** panel to see up to 5 other valid strategies for the same element, each with its own Copy button.
 
+### Variables for Parameterised Tests
 
- VERIFY ANY LOCATOR
+One click on the `{ }` button converts table cell values, row identifiers, and select options into named variables — ready to paste into a parametrised test function:
 
-Paste any locator into the Verify section and the extension highlights all matching elements on the page with a red outline. Supports:
+- JS: `rowText`, `cellValue`, `optionText`
+- Python: `row_text`, `cell_value`, `option_text`
 
-  • Playwright syntax: getByRole, getByLabel, getByText, getByPlaceholder, getByAltText, getByTitle, getByTestId, locator()
-  • Chained locators: page.getByRole("nav").getByRole("link", { name: "Home" })
-  • XPath: //div[@id="main"] or xpath=...
-  • Playwright shorthands: text=Submit, css=.my-class
-  • Plain CSS selectors
-  • Python snake_case: get_by_role, get_by_label, select_option, etc.
+### Special Element Support
 
+- **Native `<select>` dropdowns** — generates a ready-to-use `selectOption()` / `select_option()` call
+- **Table cells** — anchored to the row via `.filter({ hasText })` so locators survive row reordering
+- **`contenteditable` fields** — correctly identified as `textbox` role
+- **`<iframe>` elements** — flagged with a note to wrap in `frameLocator()`
+- **Shadow DOM elements** — flagged with a note about `pierce:` selectors
 
- LOCATOR HISTORY
+### Instant Locator Verifier
 
-The last 8 captured locators are saved and shown in the popup. Each entry has its own Copy button, so you can build out a full test scenario without losing earlier work.
+Paste any locator into the **Verify Selector** section and highlight all matching elements on the page with a live count. Supports:
 
+- Playwright syntax: `getByRole`, `getByLabel`, `getByText`, `getByPlaceholder`, `getByAltText`, `getByTitle`, `getByTestId`, `locator()`
+- Chained locators: `page.getByRole("nav").getByRole("link", { name: "Home" })`
+- XPath: `//div[@id="main"]` or `xpath=...`
+- Playwright shorthands: `text=Submit`, `css=.my-class`
+- Plain CSS selectors
+- Python snake_case: `get_by_role`, `get_by_label`, `select_option`, etc.
 
- PYTEST & JAVASCRIPT SUPPORT
+### Locator History
 
-Toggle between Pytest (Python) and JavaScript at any time. Every locator — including options, chaining, and exact flags — is formatted correctly for your chosen framework.
+The last 8 captured locators are saved across sessions. Each entry has its own Copy button. A **Clear history** button resets the list.
 
+### Pytest & JavaScript Support
 
- BUILT-IN WARNINGS
+Toggle between **Pytest (Python)** and **JavaScript** at any time. Every locator — including options, chaining, and `exact` flags — is formatted correctly for your chosen framework. Your preference is persisted across sessions.
 
-Elements inside an <iframe> or Shadow DOM are flagged inline so you know exactly what extra step is needed (frameLocator() or a pierce: selector) before the locator will work in your test.
+### Draggable Overlay
 
+The in-page locator overlay is draggable — move it out of the way if it covers the element you captured.
 
- HOW TO USE
+---
 
-1. Open the extension popup on any page.
-2. Click "Pick Element" and click any element on the page, OR hover over an element and press Alt+Shift+L (⌘+Shift+L on Mac) to capture it instantly.
-3. The locator appears in an overlay on the page and in the popup. Copy it directly.
-4. To verify a locator, paste it into the "Verify Selector" box and click "Check Selector".
-5. Recent locators are saved in section 3 of the popup for quick access.
+## How to Use
 
-For native <select> dropdowns:
-Click the dropdown to open it, press Escape to close it (without selecting), then press the shortcut. The locator is generated from the currently selected value — replace it with your desired option in the test.
+1. **Install** the extension from the Chrome Web Store.
+2. **Generate a locator:**
+   - Click the extension icon → select your framework → click **Pick Element** → click any element on the page.
+   - Or hover over any element and press `Alt+Shift+L` / `⌘+Shift+L` to capture it without clicking.
+3. The locator appears in an overlay on the page and in the popup. Click **Copy** to grab it.
+4. **Verify a locator:** paste it into the **Verify Selector** box → click **Check Selector** → matching elements are highlighted on the page.
+5. **History:** recent locators appear in section 3 of the popup for quick access.
 
+> **Native `<select>` tip:** open the dropdown, press `Escape` to close it without selecting, then press the shortcut. The locator is generated from the currently selected value — replace it with your desired option in the test.
+
+---
+
+## Contributing
+
+Contributions are welcome. If you have ideas for new features, found a bug, or want to improve the code, open an issue or submit a pull request.
+
+---
+
+## License
+
+This project is licensed under the MIT License.
