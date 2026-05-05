@@ -1,56 +1,83 @@
-# Playwright Locator Assistant
+Instantly generate and verify the best Playwright locators for any element on the page.
 
+Playwright Locator Assistant helps QA engineers and developers generate, verify, and manage Playwright locators directly from the browser — no DevTools diving, no manual selector writing.
 
-The ultimate browser extension for generating and verifying stable Playwright locators on the fly. This tool is designed for QA engineers and developers who want to write more resilient and readable tests, faster.
+─────────────────────────────────────────
+ GENERATE THE BEST LOCATOR INSTANTLY
+─────────────────────────────────────────
+Click any element on the page to capture it, or use the keyboard shortcut (Alt+Shift+L on Windows/Linux, ⌘+Shift+L on Mac) to lock in the element under your cursor without clicking — keeping dropdowns, menus, and hover states open.
 
----
+The extension automatically picks the most robust Playwright strategy available, in priority order:
 
-## Why This Extension?
+  • getByTestId — data-testid, data-cy, data-qa, data-test, data-automation-id, data-test-id
+  • getByRole with accessible name — buttons, links, headings, inputs, and more
+  • getByLabel — for form controls associated with a <label>
+  • getByPlaceholder, getByAltText, getByTitle
+  • Native <select> dropdowns — generates a ready-to-use selectOption() call
+  • Table cells — row-anchored via .filter({ hasText }) so locators survive row reordering
+  • Chained ancestor locators — when no global unique match exists
+  • CSS selector fallback — with a clear warning to add a test ID
 
-In modern web development, writing stable end-to-end tests is a challenge. CSS selectors are brittle, and manually crafting the perfect Playwright locator can be time-consuming. This extension solves that problem by embedding Playwright's best practices directly into your browser.
+─────────────────────────────────────────
+ SKIPS DYNAMIC VALUES AUTOMATICALLY
+─────────────────────────────────────────
+Exchange rates, prices, dates, times, and counters are detected at capture time and excluded from the locator. Your tests stay green across data refreshes.
 
-It follows the official locator priority, ensuring you always get the most resilient locator possible, preferring user-facing attributes over implementation details.
+─────────────────────────────────────────
+ UNIQUENESS BADGE
+─────────────────────────────────────────
+Every captured locator is checked against the current page instantly:
 
-## ✨ Features
+  ✓ 1  — unique match, safe to use
+  ⚠ 3  — not unique, consider a more specific locator
+  ✗ 0  — no match found (page state may have changed)
 
-*   **🚀 Intelligent Locator Generation:** Click on any element, and the extension automatically generates the best possible locator based on Playwright's recommended priority:
-    1.  `data-testid`
-    2.  `getByRole` (with accessible name)
-    3.  `getByText`, `getByLabel`, `getByPlaceholder`, etc.
-    4.  Smart `getByRole` (when unique without a name)
-    5.  `CSS` selector as a last resort (with a warning).
+─────────────────────────────────────────
+ ALTERNATIVE STRATEGIES
+─────────────────────────────────────────
+Expand the "Alternatives" panel below any captured locator to see up to 5 other valid strategies for the same element — each with its own Copy button.
 
-*   **🔗 Smart Locator Chaining:** For elements that aren't unique on their own, the extension finds a stable parent and creates a readable and robust chained locator (e.g., `page.getByRole('list').getByRole('listitem', { name: 'User 1' })`).
+─────────────────────────────────────────
+ VARIABLES FOR PARAMETERISED TESTS
+─────────────────────────────────────────
+One click on the { } button converts table cell values, row identifiers, and select options into named variables (rowText, cellValue, optionText in JS; row_text, cell_value, option_text in Python) — ready to paste into a parametrised test function.
 
-*   **✅ Instant Locator Verifier:** Manually write and test a locator directly in the popup. The verifier understands **both CSS and Playwright syntax** (`getByRole`, `getByText`, etc.) and instantly highlights all matching elements on the page, showing you a live count.
+─────────────────────────────────────────
+ VERIFY ANY LOCATOR
+─────────────────────────────────────────
+Paste any locator into the Verify section and the extension highlights all matching elements on the page with a red outline. Supports:
 
-*   **🐍 Pytest & JS Support:** Toggle between Python (`pytest`) and JavaScript (`playwright-test`) syntax for the generated locators.
+  • Playwright syntax: getByRole, getByLabel, getByText, getByPlaceholder, getByAltText, getByTitle, getByTestId, locator()
+  • Chained locators: page.getByRole("nav").getByRole("link", { name: "Home" })
+  • XPath: //div[@id="main"] or xpath=...
+  • Playwright shorthands: text=Submit, css=.my-class
+  • Plain CSS selectors
+  • Python snake_case: get_by_role, get_by_label, select_option, etc.
 
-*   **💡 Lightweight & Fast:** Built with performance in mind to not slow down your browsing or debugging sessions.
+─────────────────────────────────────────
+ LOCATOR HISTORY
+─────────────────────────────────────────
+The last 8 captured locators are saved and shown in the popup. Each entry has its own Copy button, so you can build out a full test scenario without losing earlier work.
 
+─────────────────────────────────────────
+ PYTEST & JAVASCRIPT SUPPORT
+─────────────────────────────────────────
+Toggle between Pytest (Python) and JavaScript at any time. Every locator — including options, chaining, and exact flags — is formatted correctly for your chosen framework.
 
-## 🛠️ How to Use
+─────────────────────────────────────────
+ BUILT-IN WARNINGS
+─────────────────────────────────────────
+Elements inside an <iframe> or Shadow DOM are flagged inline so you know exactly what extra step is needed (frameLocator() or a pierce: selector) before the locator will work in your test.
 
-1.  **Install the Extension:**
-    *  
+─────────────────────────────────────────
+ HOW TO USE
+─────────────────────────────────────────
+1. Open the extension popup on any page.
+2. Click "Pick Element" and click any element on the page, OR hover over an element and press Alt+Shift+L (⌘+Shift+L on Mac) to capture it instantly.
+3. The locator appears in an overlay on the page and in the popup. Copy it directly.
+4. To verify a locator, paste it into the "Verify Selector" box and click "Check Selector".
+5. Recent locators are saved in section 3 of the popup for quick access.
 
-2.  **To Generate a Locator:**
-    *   Click the extension icon in your browser toolbar.
-    *   Select your desired framework (Pytest or JS).
-    *   Click the "Pick Element" button.
-    *   The popup will close. Click on any element on the web page.
-    *   A notification will appear with the best locator, which is also copied to your popup.
+For native <select> dropdowns:
+Click the dropdown to open it, press Escape to close it (without selecting), then press the shortcut. The locator is generated from the currently selected value — replace it with your desired option in the test.
 
-3.  **To Verify a Locator:**
-    *   Click the extension icon.
-    *   In the "Verify Selector" section, type any CSS selector or Playwright locator (e.g., `getByRole('button')`).
-    *   Click the "Check Selector" button.
-    *   The matching elements will be highlighted on the page, and the count will be displayed in the popup.
-
-## 🤝 Contributing
-
-Contributions are welcome! If you have ideas for new features, find a bug, or want to improve the code, feel free to open an issue or submit a pull request.
-
-## 📄 License
-
-This project is licensed under the MIT License.
