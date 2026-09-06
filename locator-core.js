@@ -1779,11 +1779,14 @@
         const tag = tagOf(el);
         const role = getRole(el, ctx);
         const { name } = getNameInfo(el, ctx);
+        const ownText = FORM_TAGS.has(tag) ? '' : norm(elementText(el, ctx));
         const base = (name && !looksLikeDynamicText(name) ? name : '')
             || norm(el.getAttribute('placeholder'))
             || TEST_ID_ATTRS.map((a) => el.getAttribute(a)).find(Boolean)
-            || (FORM_TAGS.has(tag) ? '' : stableSegment(elementText(el, ctx)) || norm(elementText(el, ctx)))
-            || el.id
+            || ((tag === 'td' || tag === 'th') && columnHeaderFor(el, ctx))   // "$1,552.60" → totalCell
+            || stableSegment(ownText)
+            || (ownText && !looksLikeDynamicText(ownText) ? ownText : '')
+            || (isStableId(el.id) ? el.id : '')
             || role
             || tag;
         let ws = words(base).slice(0, 4);

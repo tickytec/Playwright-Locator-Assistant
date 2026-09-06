@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Northwind — Orders</title>
+<style>
+  :root { --ink:#1b2230; --ink2:#5b6474; --ink3:#8a93a3; --hair:#e6e9 ef; --hair:#e6e9ef; --bg:#f6f7f9; --card:#fff; --accent:#2f6fed; --ok:#1e7f4c; --warn:#9a6400; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,sans-serif; color:var(--ink); background:var(--bg); }
+  header { display:flex; align-items:center; gap:28px; height:56px; padding:0 32px; background:#fff; border-bottom:1px solid var(--hair); }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:-0.01em; }
+  .brand i { width:22px; height:22px; border-radius:6px; background:linear-gradient(135deg,#2f6fed,#7aa2f7); display:inline-block; }
+  nav a { color:var(--ink2); text-decoration:none; margin-right:20px; font-weight:500; }
+  nav a[aria-current] { color:var(--ink); }
+  .spacer { flex:1; }
+  .search { display:flex; align-items:center; gap:8px; height:34px; padding:0 12px; border:1px solid var(--hair); border-radius:8px; background:#fff; color:var(--ink3); width:260px; }
+  .search input { border:0; outline:0; font:inherit; width:100%; }
+  .avatar { width:30px; height:30px; border-radius:50%; background:#dfe6f3; }
+  main { padding:28px 32px; display:grid; grid-template-columns: 1fr 340px; gap:24px; }
+  h1 { margin:0 0 4px; font-size:22px; letter-spacing:-0.02em; }
+  .sub { color:var(--ink3); margin:0 0 20px; }
+  .card { background:var(--card); border:1px solid var(--hair); border-radius:12px; }
+  .toolbar { display:flex; gap:8px; padding:14px 16px; border-bottom:1px solid var(--hair); align-items:center; }
+  .toolbar .spacer { flex:1; }
+  .btn { height:32px; padding:0 12px; border-radius:7px; border:1px solid var(--hair); background:#fff; font:600 13px inherit; font-family:inherit; color:var(--ink); cursor:pointer; }
+  .btn.primary { background:var(--accent); color:#fff; border-color:transparent; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:left; font-weight:600; color:var(--ink3); font-size:11.5px; letter-spacing:.03em; text-transform:uppercase; padding:10px 16px; border-bottom:1px solid var(--hair); }
+  td { padding:12px 16px; border-bottom:1px solid var(--hair); vertical-align:middle; }
+  tr:last-child td { border-bottom:0; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11.5px; font-weight:600; }
+  .pill.paid { color:var(--ok); background:rgba(30,127,76,.12); }
+  .pill.pending { color:var(--warn); background:rgba(201,138,0,.14); }
+  .num { font-variant-numeric:tabular-nums; text-align:right; }
+  .row-actions button { height:26px; padding:0 9px; border-radius:6px; border:1px solid var(--hair); background:#fff; font:600 12px inherit; font-family:inherit; color:var(--ink2); cursor:pointer; }
+  aside .card { padding:18px; }
+  aside h2 { margin:0 0 14px; font-size:14px; }
+  label { display:block; font-size:12px; color:var(--ink2); margin:10px 0 4px; }
+  input[type=text], input[type=email], select { width:100%; height:34px; padding:0 10px; border:1px solid var(--hair); border-radius:7px; font:inherit; background:#fff; }
+  .check { display:flex; align-items:center; gap:8px; margin:12px 0; font-size:13px; }
+  .stat { display:flex; justify-content:space-between; padding:8px 0; border-top:1px solid var(--hair); font-size:13px; }
+  .stat b { font-variant-numeric:tabular-nums; }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><i></i> Northwind</div>
+  <nav aria-label="Main">
+    <a href="#">Dashboard</a><a href="#" aria-current="page">Orders</a><a href="#">Customers</a><a href="#">Reports</a>
+  </nav>
+  <div class="spacer"></div>
+  <div class="search">⌕ <input type="search" placeholder="Search orders" aria-label="Search orders"></div>
+  <button class="btn" aria-label="Notifications">🔔</button>
+  <div class="avatar" role="img" aria-label="Anna Keller"></div>
+</header>
+<main>
+  <section>
+    <h1>Orders</h1>
+    <p class="sub">Updated 14:32 · 1,284 orders this month</p>
+    <div class="card">
+      <div class="toolbar">
+        <button class="btn">Filter</button>
+        <button class="btn">Export</button>
+        <div class="spacer"></div>
+        <button class="btn primary">New order</button>
+      </div>
+      <table>
+        <thead><tr><th>Order</th><th>Customer</th><th>Status</th><th class="num">Total</th><th>Date</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>#10248</td><td>Vins et alcools Chevalier</td><td><span class="pill paid">Paid</span></td><td class="num">$1,864.00</td><td>2026-09-04</td><td class="row-actions"><button>Edit</button> <button>Refund</button></td></tr>
+          <tr><td>#10249</td><td>Toms Spezialitäten</td><td><span class="pill pending">Pending</span></td><td class="num">$1,863.40</td><td>2026-09-04</td><td class="row-actions"><button>Edit</button> <button>Refund</button></td></tr>
+          <tr><td>#10250</td><td>Hanari Carnes</td><td><span class="pill paid">Paid</span></td><td class="num">$1,552.60</td><td>2026-09-05</td><td class="row-actions"><button>Edit</button> <button>Refund</button></td></tr>
+          <tr><td>#10251</td><td>Victuailles en stock</td><td><span class="pill paid">Paid</span></td><td class="num">$654.06</td><td>2026-09-05</td><td class="row-actions"><button>Edit</button> <button>Refund</button></td></tr>
+          <tr><td>#10252</td><td>Suprêmes délices</td><td><span class="pill pending">Pending</span></td><td class="num">$3,597.90</td><td>2026-09-06</td><td class="row-actions"><button>Edit</button> <button>Refund</button></td></tr>
+          <tr><td>#10253</td><td>Hanari Carnes</td><td><span class="pill paid">Paid</span></td><td class="num">$1,444.80</td><td>2026-09-06</td><td class="row-actions"><button>Edit</button> <button>Refund</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <aside>
+    <div class="card">
+      <h2>Quick invoice</h2>
+      <label for="email">Customer email</label>
+      <input id="email" type="email" placeholder="name@company.com">
+      <label for="currency">Currency</label>
+      <select id="currency"><option>USD</option><option selected>EUR</option><option>GBP</option></select>
+      <label class="check"><input type="checkbox" checked> Send a copy to me</label>
+      <button class="btn primary" style="width:100%">Create invoice</button>
+      <div style="margin-top:18px">
+        <div class="stat"><span>Revenue (30d)</span><b>$42,315.20</b></div>
+        <div class="stat"><span>Refund rate</span><b>1.2%</b></div>
+        <div class="stat"><span>Avg. order</span><b>$1,791.05</b></div>
+      </div>
+    </div>
+  </aside>
+</main>
+</body>
+</html>

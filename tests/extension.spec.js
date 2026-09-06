@@ -14,7 +14,7 @@ let server;
 let context;
 let sw;
 
-const EXTENSION_FILES = ['manifest.json', 'background.js', 'content.js', 'locator-core.js', 'popup.html', 'popup.js', 'styles.css', 'devtools.html', 'devtools.js', 'sidebar.html', 'sidebar.js', 'icons/icon16.png', 'icons/icon48.png', 'icons/icon128.png'];
+const EXTENSION_FILES = ['manifest.json', 'background.js', 'content.js', 'locator-core.js', 'popup.html', 'popup.js', 'styles.css', 'devtools.html', 'devtools.js', 'sidebar.html', 'sidebar.js', 'icons/icon16.png', 'icons/icon32.png', 'icons/icon48.png', 'icons/icon128.png'];
 
 // Chrome trims whitespace around --load-extension paths, so a checkout whose
 // directory name contains spaces cannot be loaded in place. Copy it.

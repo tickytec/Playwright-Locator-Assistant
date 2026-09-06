@@ -11,8 +11,10 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
+    "screenshots": "node store/make-screenshots.js",
+    "icons": "node store/make-icon.js",
     "check": "node --check locator-core.js && node --check content.js && node --check background.js && node --check popup.js",
-    "package": "npm run check && rm -f playwright-locator-assistant.zip && zip -r playwright-locator-assistant.zip manifest.json background.js content.js locator-core.js popup.html popup.js styles.css devtools.html devtools.js sidebar.html sidebar.js icons/icon16.png icons/icon48.png icons/icon128.png"
+    "package": "npm run check && rm -f playwright-locator-assistant.zip && zip -r playwright-locator-assistant.zip manifest.json background.js content.js locator-core.js popup.html popup.js styles.css devtools.html devtools.js sidebar.html sidebar.js icons/icon16.png icons/icon32.png icons/icon48.png icons/icon128.png"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0"
