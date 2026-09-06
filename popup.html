@@ -6,45 +6,93 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <div class="container">
+    <main class="container">
         <header class="header">
-            <img src="icons/icon48.png" alt="logo" class="logo">
+            <img src="icons/icon48.png" alt="" class="logo">
             <h1>Playwright Locator Assistant</h1>
         </header>
 
-        <div class="section">
-            <h2>1. Generate Locator</h2>
-            <div id="locatorOutput">Click "Pick Element" to start.</div>
-            <div class="framework-selector">
-                <label><input type="radio" name="framework" value="pytest" id="pytest" checked> Pytest</label>
-                <label><input type="radio" name="framework" value="js" id="js"> JS</label>
+        <section class="section" aria-labelledby="generateHeading">
+            <h2 id="generateHeading">Locator</h2>
+            <div id="locatorOutput" class="output" aria-live="polite">Click "Pick element" to start.</div>
+            <div class="row">
+                <label class="field">
+                    <span>Language</span>
+                    <select id="framework" aria-label="Language">
+                        <option value="pytest">Python (pytest)</option>
+                        <option value="js">JavaScript / TypeScript</option>
+                        <option value="java">Java</option>
+                        <option value="csharp">C# (.NET)</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>Exact matching</span>
+                    <select id="exactMode" aria-label="Exact matching">
+                        <option value="always">Always</option>
+                        <option value="needed">Only when needed</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>Test id attribute</span>
+                    <select id="testIdAttribute" aria-label="Test id attribute">
+                        <option value="data-testid">data-testid</option>
+                        <option value="data-test-id">data-test-id</option>
+                        <option value="data-test">data-test</option>
+                        <option value="data-qa">data-qa</option>
+                        <option value="data-cy">data-cy</option>
+                        <option value="data-automation-id">data-automation-id</option>
+                    </select>
+                </label>
             </div>
             <div class="button-group">
-                <button id="pickElementButton" class="btn btn-primary">Pick Element</button>
-                <button id="copyLocatorButton" class="btn" style="display: none;">Copy Locator</button>
+                <button id="pickElementButton" class="btn btn-primary">Pick element</button>
+                <button id="copyLocatorButton" class="btn" hidden>Copy</button>
             </div>
-            <p class="shortcut-hint">Hover over any element, then press <kbd id="pickShortcut">Alt+Shift+L</kbd> to capture it instantly. For native dropdowns: click to open, close with Esc, then press the shortcut.</p>
-        </div>
+            <p class="hint">Hover any element and press <kbd id="pickShortcut">Alt+Shift+L</kbd> to capture it without clicking — menus and dropdowns stay open. In picking mode, Tab moves between elements and Enter captures. For a native <code>&lt;select&gt;</code>: open it, close with Esc, then press the shortcut.</p>
+        </section>
 
-        <div class="divider"></div>
+        <section class="section" aria-labelledby="verifyHeading">
+            <h2 id="verifyHeading">Verify</h2>
+            <textarea id="locatorInput" rows="2" spellcheck="false" placeholder='page.getByRole("button", { name: "Save" })  — or paste a whole test' aria-label="Locators to verify"></textarea>
+            <button id="checkButton" class="btn">Check on page</button>
+            <div id="message" class="message" role="status" hidden></div>
+            <div id="bulkResults" class="bulk" hidden></div>
+            <p class="hint">JS and Python syntax, chains, <code>filter()</code>, <code>nth()</code>, <code>frameLocator()</code>, CSS, XPath, <code>text=</code>. Paste several lines to check them all at once.</p>
+        </section>
 
-        <div class="section" id="historySection" style="display:none;">
-            <h2>3. Recent Locators</h2>
+        <section class="section" id="recordingSection" aria-labelledby="recordingHeading">
+            <h2 id="recordingHeading">Record a flow</h2>
+            <div class="button-group">
+                <button id="recordButton" class="btn btn-danger">Start recording</button>
+                <button id="copyRecordingButton" class="btn" hidden>Copy test</button>
+                <button id="clearRecordingButton" class="btn" hidden>Clear</button>
+            </div>
+            <div id="recordingList" class="steps"></div>
+            <p class="hint">Clicks, typed values and selections on the page become test steps with the generated locators.</p>
+        </section>
+
+        <section class="section" id="pageObjectSection" aria-labelledby="pageObjectHeading">
+            <h2 id="pageObjectHeading">Page object</h2>
+            <div class="row">
+                <label class="field grow"><span>Class name</span><input type="text" id="pageObjectName" value="AppPage" aria-label="Page object class name" spellcheck="false"></label>
+            </div>
+            <div id="pageObjectList" class="steps"></div>
+            <div class="button-group">
+                <button id="copyPageObjectButton" class="btn btn-primary" disabled>Copy class</button>
+                <button id="clearPageObjectButton" class="btn" disabled>Clear</button>
+            </div>
+            <p class="hint">Use <b>+ Page object</b> in the on-page overlay to collect elements. Names are editable.</p>
+        </section>
+
+        <section class="section" id="historySection" aria-labelledby="historyHeading" hidden>
+            <h2 id="historyHeading">Recent</h2>
             <div id="historyList"></div>
             <button id="clearHistoryBtn" class="btn btn-sm-danger">Clear history</button>
-        </div>
+            <p class="hint">Counts are re-checked against the current page every time the popup opens.</p>
+        </section>
+    </main>
 
-        <div class="divider" id="historyDivider" style="display:none;"></div>
-
-        <div class="section">
-            <h2>2. Verify Selector</h2>
-            <input type="text" id="locatorInput" placeholder="Enter CSS or Playwright locator...">
-            <button id="checkButton" class="btn">Check Selector</button>
-            <div id="message" style="display: none;"></div>
-        </div>
-    </div>
-
+    <script src="locator-core.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>

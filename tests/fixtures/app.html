@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fixture — Locator Assistant</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 20px; }
+  .card { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+  .hidden { display: none; }
+  .invisible { visibility: hidden; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+
+<header>
+  <nav aria-label="Main">
+    <a href="/" data-pick="nav-home">Home</a>
+    <a href="/products" data-pick="nav-products">Products</a>
+    <a data-pick="anchor-no-href">Not a link</a>
+  </nav>
+  <button data-pick="menu-button" aria-label="Open menu">
+    <svg width="16" height="16" aria-hidden="true"><rect width="16" height="16"/></svg>
+  </button>
+</header>
+
+<main>
+  <h1 data-pick="h1">Dashboard</h1>
+
+  <section aria-label="Account" class="card">
+    <h2>Account</h2>
+    <form>
+      <label for="email">Email address</label>
+      <input id="email" type="email" data-pick="email">
+
+      <label>Nickname <input type="text" data-pick="nickname-wrapped"></label>
+
+      <input type="text" placeholder="Search everything" data-pick="placeholder-only">
+      <input type="search" data-pick="search-input" aria-label="Site search">
+
+      <span id="pw-label">Password</span>
+      <input type="password" aria-labelledby="pw-label" data-pick="labelledby">
+
+      <label for="country">Country</label>
+      <select id="country" data-pick="country">
+        <option>Germany</option>
+        <option selected>Poland</option>
+        <option>Spain</option>
+      </select>
+
+      <label for="tags">Tags</label>
+      <select id="tags" multiple data-pick="tags-multiple">
+        <option>A</option><option>B</option>
+      </select>
+
+      <label for="bio">Bio</label>
+      <textarea id="bio" data-pick="bio"></textarea>
+
+      <label><input type="checkbox" data-pick="newsletter"> Subscribe to newsletter</label>
+
+      <fieldset>
+        <legend>Plan</legend>
+        <label><input type="radio" name="plan" value="free" data-pick="plan-free"> Free</label>
+        <label><input type="radio" name="plan" value="pro" checked data-pick="plan-pro"> Pro</label>
+      </fieldset>
+
+      <input type="range" min="0" max="10" aria-label="Volume" data-pick="volume">
+      <input type="number" aria-label="Quantity" data-pick="quantity">
+      <input type="file" aria-label="Attachment" data-pick="file">
+      <input type="submit" value="Create account" data-pick="submit-input">
+      <input type="hidden" name="csrf" value="x" data-pick="hidden-input">
+    </form>
+  </section>
+
+  <section class="card" data-pick="section-no-name">
+    <h2 data-pick="h2-orders">Orders</h2>
+    <p data-pick="paragraph">Your recent orders appear below. Total: $1,299.00</p>
+    <span data-pick="price">$42.99</span>
+    <span data-pick="count">Notifications (12)</span>
+    <span data-pick="time">Updated 14:32</span>
+
+    <table data-pick="orders-table">
+      <caption>Recent orders</caption>
+      <thead>
+        <tr>
+          <th scope="col" data-pick="th-product">Product</th>
+          <th scope="col">Price</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row" data-pick="th-row-widget">Widget</th>
+          <td data-pick="td-widget-price">$10.00</td>
+          <td><button data-pick="edit-widget">Edit</button></td>
+        </tr>
+        <tr>
+          <td data-pick="td-gadget-name">Gadget</td>
+          <td>$20.00</td>
+          <td><button data-pick="edit-gadget">Edit</button></td>
+        </tr>
+        <tr>
+          <td>Gizmo</td>
+          <td data-pick="td-gizmo-price">$30.00</td>
+          <td><button>Edit</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table>
+      <tr><td>1</td><td data-pick="td-all-dynamic">2</td></tr>
+      <tr><td>3</td><td>4</td></tr>
+    </table>
+  </section>
+
+  <section class="card" aria-label="Fruit">
+    <ul>
+      <li data-pick="li-apple">Apple</li>
+      <li data-pick="li-banana">Banana</li>
+      <li>Cherry</li>
+    </ul>
+    <ul>
+      <li>Apple</li>
+      <li>Pear</li>
+    </ul>
+  </section>
+
+  <div class="card" id="card-a">
+    <h3>Card A</h3>
+    <button data-pick="save-a">Save</button>
+  </div>
+  <div class="card" id="card-b">
+    <h3>Card B</h3>
+    <button data-pick="save-b">Save</button>
+    <button class="hidden">Save</button>
+    <button aria-hidden="true">Save</button>
+  </div>
+
+  <div class="card">
+    <button data-pick="icon-button"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Close dialog"></button>
+    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="Company logo" data-pick="logo">
+    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" data-pick="decorative-img" class="deco">
+    <span title="Refresh data" data-pick="title-only">↻</span>
+    <div data-pick="generic-div" class="widget-frame css-1a2b3c4d">no role, some text</div>
+    <div id="1st-place" data-pick="digit-id" class="x"><span>$5.00</span></div>
+    <div data-pick="contenteditable" contenteditable="true">Type here</div>
+    <div role="tablist">
+      <button role="tab" aria-selected="true" data-pick="tab-active">Overview</button>
+      <button role="tab" data-pick="tab-details">Details</button>
+    </div>
+    <button role="switch" aria-checked="false" data-pick="switch">Dark mode</button>
+    <div role="button" tabindex="0" data-pick="div-role-button">Custom action</div>
+  </div>
+
+  <div class="card">
+    <button data-testid="checkout" data-pick="testid">Checkout</button>
+    <button data-cy="cart" data-pick="cy">Cart</button>
+    <button data-pick="cart-count">3 items in cart</button>
+    <button data-pick="dup-unstable-1">Retry</button>
+    <button data-pick="dup-unstable-2">Retry</button>
+  </div>
+
+  <div class="card">
+    <my-widget data-pick="shadow-host"></my-widget>
+  </div>
+
+  <div class="card">
+    <iframe id="child-frame" src="frame.html" title="Payment frame" data-pick="iframe" width="400" height="200"></iframe>
+  </div>
+
+  <details>
+    <summary data-pick="summary">More</summary>
+    <button data-pick="in-closed-details">Hidden by details</button>
+  </details>
+</main>
+
+<section aria-label="Rates" class="card">
+  <p data-pick="rate-sentence">Current rate: 1.1</p>
+  <span data-pick="version">Version 2.1</span>
+  <table>
+    <thead><tr><th>Pair</th><th>Rate</th><th>Change</th><th>Updated</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>EUR/USD</td><td data-pick="eur-rate">1.0823</td><td>+0.12%</td><td>14:32:05</td><td><button data-pick="eur-buy">Buy</button></td></tr>
+      <tr><td data-pick="jpy-pair">USD/JPY</td><td>149.80</td><td>0.00%</td><td>14:32:04</td><td><button>Buy</button></td></tr>
+    </tbody>
+  </table>
+  <ul><li data-pick="li-rate">EUR/USD 1.0823</li><li>GBP/USD 1.2711</li></ul>
+</section>
+
+<input type="search" placeholder="Quick search" data-pick="quick-search">
+
+<footer data-pick="footer">© Example</footer>
+
+<script>
+  class MyWidget extends HTMLElement {
+    constructor() {
+      super();
+      const root = this.attachShadow({ mode: 'open' });
+      root.innerHTML = `
+        <style>button { padding: 4px; }</style>
+        <p>Inside shadow</p>
+        <button data-pick="shadow-button">Shadow save</button>
+        <button data-pick="shadow-button-dup">Duplicate</button>
+        <button>Duplicate</button>
+        <input placeholder="Shadow input" data-pick="shadow-input">
+      `;
+    }
+  }
+  customElements.define('my-widget', MyWidget);
+</script>
+</body>
+</html>

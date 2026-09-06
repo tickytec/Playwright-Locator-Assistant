@@ -1,54 +1,66 @@
-const isPickingModeActive = {};
+/*
+ * background.js — MV3 service worker.
+ *
+ *  - keyboard shortcut: inject the scripts (idempotent) into every frame and
+ *    ask each to capture what is under the cursor
+ *  - relay: when a sub-frame captures an element, show the overlay in the top
+ *    frame and end picking mode in all other frames
+ */
+const SCRIPTS = ['locator-core.js', 'content.js'];
 
-// Keyboard shortcut handler — activates picking without any click,
-// so open dropdowns/menus stay open while the user hovers and picks.
-//
-// Uses two sequential executeScript calls instead of message passing:
-// message passing has a timing/permission window where it silently fails
-// (the send succeeds but the listener isn't ready), causing the shortcut
-// to appear dead unless the icon was clicked first.
-chrome.commands.onCommand.addListener((command) => {
-    if (command !== 'toggle-picking-mode') return;
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (!tabs.length) return;
-        const tabId = tabs[0].id;
+function isInjectable(url) {
+    return !!url && /^(https?|file|ftp):/.test(url);
+}
 
-        chrome.storage.local.get(['selectedFramework'], (result) => {
-            const framework = result.selectedFramework || 'pytest';
+// Prefer every frame; if one frame refuses injection (sandboxed / restricted),
+// fall back to the top frame so the shortcut still works on the page.
+async function executeInFrames(tabId, injection) {
+    try {
+        return await chrome.scripting.executeScript({ target: { tabId, allFrames: true }, ...injection });
+    } catch (_) {
+        return chrome.scripting.executeScript({ target: { tabId }, ...injection });
+    }
+}
 
-            // Step 1: ensure content.js is present (idempotency guard makes this safe).
-            chrome.scripting.executeScript(
-                { target: { tabId }, files: ['content.js'] },
-                () => {
-                    if (chrome.runtime.lastError) return; // restricted page (chrome://)
+async function injectScripts(tabId) {
+    await executeInFrames(tabId, { files: SCRIPTS });
+}
 
-                    // Step 2: call the exposed toggle function directly — no message needed.
-                    chrome.scripting.executeScript({
-                        target: { tabId },
-                        func: (fw) => window.__pwTogglePicking?.(fw, true),
-                        args: [framework],
-                    }, () => { void chrome.runtime.lastError; });
-                }
-            );
-        });
+async function togglePicking(tabId, framework, fromShortcut) {
+    const results = await executeInFrames(tabId, {
+        func: (fw, shortcut) => (window.__pwTogglePicking ? window.__pwTogglePicking(fw, shortcut) : 'missing'),
+        args: [framework, fromShortcut],
     });
-});
+    return results.map((r) => r && r.result);
+}
 
-chrome.runtime.onMessage.addListener((message, sender) => {
-    if (message.action === 'elementPicked') {
-        if (sender.tab?.id) {
-            isPickingModeActive[sender.tab.id] = false;
+chrome.commands.onCommand.addListener(async (command) => {
+    if (command !== 'toggle-picking-mode') return;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || !isInjectable(tab.url)) return;
+    const { selectedFramework = 'pytest' } = await chrome.storage.local.get('selectedFramework');
+    try {
+        await injectScripts(tab.id);
+        const states = await togglePicking(tab.id, selectedFramework, true);
+        // A sub-frame captured while the top frame fell back to picking mode:
+        // stop the picking so the user only sees the result.
+        if (states.includes('captured') && states.includes('enabled')) {
+            chrome.tabs.sendMessage(tab.id, { action: 'disablePickingMode' }).catch(() => {});
         }
+    } catch (_) {
+        // Restricted page (chrome://, web store, PDF viewer) — nothing to do.
     }
 });
 
-chrome.tabs.onRemoved.addListener((tabId) => {
-    delete isPickingModeActive[tabId];
-});
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-    if (changeInfo.status === 'loading' && isPickingModeActive[tabId]) {
-        isPickingModeActive[tabId] = false;
+chrome.runtime.onMessage.addListener((message, sender) => {
+    if (!message || !sender.tab) return;
+    const tabId = sender.tab.id;
+    if (message.action === 'elementPicked') {
+        chrome.tabs.sendMessage(tabId, { action: 'disablePickingMode' }).catch(() => {});
+        if (!message.fromTopFrame) {
+            chrome.tabs.sendMessage(tabId, { action: 'showLocator', result: message.result }, { frameId: 0 }).catch(() => {});
+        }
+    } else if (message.action === 'pickingCancelled') {
         chrome.tabs.sendMessage(tabId, { action: 'disablePickingMode' }).catch(() => {});
     }
 });

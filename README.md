@@ -1,111 +1,174 @@
 # Playwright Locator Assistant
 
-The ultimate browser extension for generating, verifying, and managing stable Playwright locators — without ever opening DevTools.
+A Chrome extension that generates, verifies and keeps track of stable Playwright locators for any element on a page — without opening DevTools.
 
-Designed for QA engineers and developers who want resilient, readable tests written faster.
-
----
-
-## Why This Extension?
-
-Writing stable end-to-end tests is hard. CSS selectors break on every redesign, and manually crafting the right Playwright locator takes time. This extension embeds Playwright's best practices directly in your browser: it follows the official locator priority, skips dynamic values that would break tests, and tells you instantly whether your locator is unique.
+Built for QA engineers and developers who want resilient, readable tests written faster. Every locator the extension rates as unique is checked with an engine that mirrors Playwright's own role, accessible-name and text semantics, and the test suite proves that agreement against real Chromium.
 
 ---
 
 ## Features
 
-### Intelligent Locator Generation
+### Locator generation that follows Playwright's rules
 
-Click any element — the extension automatically picks the most resilient strategy, in priority order:
+Click any element (or hover it and press the shortcut). The extension tries strategies in priority order and returns the first one that is **unique on the page**:
 
-1. `getByTestId` — detects `data-testid`, `data-cy`, `data-qa`, `data-test`, `data-automation-id`, `data-test-id`
-2. `getByRole` with accessible name — buttons, links, headings, inputs, and more
-3. `getByLabel` — for form controls associated with a `<label>`
-4. `getByPlaceholder`, `getByAltText`, `getByTitle`
-5. `getByText` for static text content
-6. Chained ancestor locator — when no global unique match exists
-7. CSS selector fallback — with a warning to add a `data-testid`
+1. `getByTestId` — `data-testid`, plus `data-test-id`, `data-test`, `data-qa`, `data-cy`, `data-automation-id` (with a note when your config needs `testIdAttribute`)
+2. `getByLabel` — form controls named by a `<label>` (`for=` or wrapping)
+3. `getByAltText` — images
+4. `getByRole` + accessible name — computed the way Playwright computes it: `aria-labelledby`, `aria-label`, labels, descendant content (including `alt` on icon images), `title`, placeholder
+5. `getByPlaceholder`
+6. `getByText` — exact for stable text, or a stable substring when the text contains a live value
+7. `getByTitle`
+8. `getByRole` alone, or `getByRole(...).filter({ hasText })` for containers such as list items and rows
+9. Scoped chains — a unique ancestor (`#id`, `getByRole("region", { name })`, a row filter…) followed by a locator unique inside it
+10. `.nth(i)` on the best semantic locator, then a CSS path — both with a warning to add a `data-testid`
 
-### Keyboard Shortcut — Capture Without Clicking
+Roles follow the HTML-AAM mapping Playwright uses: `<a>` without `href` is not a link, `<input type="search">` is a `searchbox`, `<select multiple>` is a `listbox`, `<section>` is a `region` only when named, decorative images are skipped, hidden elements are ignored, and so on.
 
-Hover over any element and press `Alt+Shift+L` (Windows/Linux) or `⌘+Shift+L` (Mac) to capture it instantly — without a click. Dropdowns, menus, and hover states stay open.
+### Dynamic value filtering
 
-### Dynamic Value Filtering
+Prices, exchange rates, dates, times, counters and "12 results"-style text are detected and kept out of locator names, so tests stay green across data refreshes.
 
-Exchange rates, prices, dates, times, and counters are detected at capture time and excluded from locator text. Tests stay green across data refreshes.
+Names with a live part become regex names: `getByRole("button", { name: /items in cart/ })`.
 
-### Uniqueness Badge
+### Tables
 
-Every captured locator is checked against the live page immediately:
+Cells are anchored to their row, and index-based cells name their column:
 
-- `✓ 1` — unique match, safe to use
-- `⚠ N` — not unique, consider a more specific locator
-- `✗ 0` — no match (page state may have changed)
+```js
+page.getByRole("row").filter({ hasText: "Widget" }).getByRole("cell").nth(1)  // column "Price"
+page.getByRole("row").filter({ hasText: "Gadget" }).getByRole("button", { name: "Edit", exact: true })
+```
 
-### Alternative Strategies
+### Actions, assertions and stability
 
-Expand the **Alternatives** panel to see up to 5 other valid strategies for the same element, each with its own Copy button.
+The overlay offers **Copy**, **Copy action** and **Copy assert** for every pick. A button becomes `.click()`, an input `.fill("")`, a checkbox `.check()`, a select `.selectOption("…")`; assertions use `toHaveText` / `toHaveValue` / `toBeChecked` / `toBeVisible` depending on the element. Each locator carries a stability tag: **strong** (test id, label, role + name), **good** (text, placeholder, filters, scoped chains) or **fragile** (CSS classes, paths, `.nth()`).
 
-### Variables for Parameterised Tests
+### Page objects
 
-One click on the `{ }` button converts table cell values, row identifiers, and select options into named variables — ready to paste into a parametrised test function:
+Click **+ Page object** in the overlay to collect elements. The popup lists them with editable names (`saveButton`, `emailAddressInput`, …) and **Copy class** renders a class in the selected language: TypeScript getters, a Python class with properties, a Java class with `Locator` methods, or a C# class with `ILocator` properties.
 
-- JS: `rowText`, `cellValue`, `optionText`
-- Python: `row_text`, `cell_value`, `option_text`
+### Record a flow
 
-### Special Element Support
+**Start recording** in the popup, use the page normally, then **Stop**. Clicks, typed values, Enter presses, checkbox changes and selections become steps with the generated locators; navigating to another page adds a `goto`. **Copy test** renders a test skeleton in the selected language.
 
-- **Native `<select>` dropdowns** — generates a ready-to-use `selectOption()` / `select_option()` call
-- **Table cells** — anchored to the row via `.filter({ hasText })` so locators survive row reordering
-- **`contenteditable` fields** — correctly identified as `textbox` role
-- **`<iframe>` elements** — flagged with a note to wrap in `frameLocator()`
-- **Shadow DOM elements** — flagged with a note about `pierce:` selectors
+### DevTools sidebar
 
-### Instant Locator Verifier
+In the Elements panel, the **Playwright Locator** sidebar shows the locator, count, stability, action and assertion for the currently inspected node (`$0`), with alternatives.
 
-Paste any locator into the **Verify Selector** section and highlight all matching elements on the page with a live count. Supports:
+### iframes and Shadow DOM
 
-- Playwright syntax: `getByRole`, `getByLabel`, `getByText`, `getByPlaceholder`, `getByAltText`, `getByTitle`, `getByTestId`, `locator()`
-- Chained locators: `page.getByRole("nav").getByRole("link", { name: "Home" })`
-- XPath: `//div[@id="main"]` or `xpath=...`
-- Playwright shorthands: `text=Submit`, `css=.my-class`
-- Plain CSS selectors
-- Python snake_case: `get_by_role`, `get_by_label`, `select_option`, etc.
+- Elements inside same-origin iframes get the full chain: `page.getByTitle("Payment frame").contentFrame().getByRole(...)`. Nested frames are supported; cross-origin frames get a note to add `frameLocator()`.
+- Elements inside open shadow roots are picked directly and located without special syntax (Playwright pierces open shadow DOM).
 
-### Locator History
+### Four languages
 
-The last 8 captured locators are saved across sessions. Each entry has its own Copy button. A **Clear history** button resets the list.
+Python (pytest), JavaScript/TypeScript, Java and C# output for locators, actions, assertions, page objects and recordings. Java and C# are rendered from the same analysis (`AriaRole.BUTTON`, `new Page.GetByRoleOptions().setName(...)`, `new() { Name = ..., Exact = true }`).
 
-### Pytest & JavaScript Support
+### Settings
 
-Toggle between **Pytest (Python)** and **JavaScript** at any time. Every locator — including options, chaining, and `exact` flags — is formatted correctly for your chosen framework. Your preference is persisted across sessions.
+- **Test id attribute**: choose your project's `testIdAttribute`; matching attributes are emitted without a note and other attributes get one.
+- **`exact: true`**: *always* (default, robust against "Save" vs "Save as") or *only when needed* (the loose, case-insensitive form is used whenever it is already unique, like Playwright's codegen).
 
-### Draggable Overlay
+### Uniqueness badge you can trust
 
-The in-page locator overlay is draggable — move it out of the way if it covers the element you captured.
+Every locator is resolved against the live page by the same engine the verifier uses:
+
+- `✓ 1` — unique, safe to use
+- `⚠ N` — not unique (the generator only shows this when nothing better exists)
+- `✗ 0` — no match
+
+### Alternatives with counts
+
+Expand **Alternatives** to see up to 5 other strategies for the same element, each with its own match count and Copy button.
+
+### Keyboard shortcut — capture without clicking
+
+Hover an element and press `Alt+Shift+L` (Windows/Linux) or `⌘+Shift+L` (macOS). Menus, dropdowns and hover states stay open. In picking mode, `Tab` moves focus between elements, `Enter` captures the hovered or focused element and `Esc` cancels; mouse presses are swallowed so the page never reacts to the pick. The overlay remembers where you dragged it.
+
+### Variables for parameterised tests
+
+The `{ }` button swaps row anchors, cell values and select options for variable names (`rowText` / `cellValue` / `optionText`, or `row_text` / `cell_value` / `option_text` in Python).
+
+### Verify any locator
+
+Paste a locator into **Verify locator** and matching elements are highlighted on the page with a count. Accepts:
+
+- JS and Python Playwright syntax: `getByRole`, `getByText`, `getByLabel`, `getByPlaceholder`, `getByAltText`, `getByTitle`, `getByTestId`, `locator()`, `get_by_*`
+- Options: `exact`, `name` as string or regex (`/save/i`, `re.compile(...)`), `level`, `checked`, `selected`, `pressed`, `expanded`, `disabled`, `includeHidden`
+- Chains and narrowing: `.filter({ hasText, hasNotText, has, hasNot })`, `.nth()`, `.first()`, `.last()`, `.and()`, `.or()`
+- Frames: `frameLocator("#f")`, `locator("iframe").contentFrame()` / `.content_frame`
+- Wrappers and actions are ignored: `await`, `expect(...)`, `.click()`, `.fill()`, `.select_option()`…
+- Selector strings: CSS (including `:has-text()`, `:text-is()`, `:visible`), XPath (`//…` or `xpath=`), `text=`, `css=`, `data-testid=`, and `>>` chains
+
+Unparseable input is reported as an error rather than "0 matches". Paste several lines, or a whole test, to check every locator in it at once.
+
+### History
+
+The last 8 locators are kept across sessions and re-verified against the current page every time the popup opens, so you see at once which ones a redesign broke. Click one to load it into the verifier, or copy it.
 
 ---
 
-## How to Use
+## Install
 
-1. **Install** the extension from the Chrome Web Store.
-2. **Generate a locator:**
-   - Click the extension icon → select your framework → click **Pick Element** → click any element on the page.
-   - Or hover over any element and press `Alt+Shift+L` / `⌘+Shift+L` to capture it without clicking.
-3. The locator appears in an overlay on the page and in the popup. Click **Copy** to grab it.
-4. **Verify a locator:** paste it into the **Verify Selector** box → click **Check Selector** → matching elements are highlighted on the page.
-5. **History:** recent locators appear in section 3 of the popup for quick access.
+Until the store listing is updated, load it unpacked:
 
-> **Native `<select>` tip:** open the dropdown, press `Escape` to close it without selecting, then press the shortcut. The locator is generated from the currently selected value — replace it with your desired option in the test.
+1. Clone this repository.
+2. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked** and select the repository folder.
+
+## Use
+
+1. Click the extension icon, choose a framework, click **Pick element**, then click any element on the page — or hover an element and press the shortcut.
+2. The locator appears in an overlay on the page (draggable) and in the popup. Click **Copy**.
+3. To check a locator, paste it into **Verify locator** and press Enter.
+
+> **Native `<select>` tip:** the OS dropdown swallows keyboard events. Open it, close it with Esc, then press the shortcut; the generated `selectOption("…")` uses the currently selected option — replace it with the one your test needs.
+
+---
+
+## Development
+
+```bash
+npm install
+npx playwright install chromium
+npm test
+```
+
+The suite (`tests/`) has three layers:
+
+- `generator.spec.js` — every generated locator is evaluated with the **real Playwright API** and must resolve to exactly the picked element; the Python output must resolve to the same element.
+- `verifier.spec.js` — a corpus of hand-written locators where the extension's count must equal Playwright's, plus Python/JS equivalence and error reporting.
+- `extension.spec.js` — the unpacked extension loaded into Chromium and driven through its service worker: picking, overlay, iframe relay, shortcut, shadow DOM, keyboard picking, page-object add and recording.
+- `unit.spec.js` — heuristics, formatting, parsing, Java/C# translation, page-object and recording rendering, bulk counting.
+
+The popup is covered by opening it as an extension page inside the same context (history counts, bulk verify, page object, recording, settings). Not covered automatically: the DevTools sidebar, which Playwright cannot drive.
+
+`npm run package` produces the zip for the Chrome Web Store.
+
+### Performance
+
+Generation resolves each candidate against the live page. A 400 ms budget bounds the search on very large DOMs: once spent, the remaining scoped variants are skipped and the CSS path is used as the last resort. The suite includes a 20k-element page as a benchmark.
+
+### CI
+
+`.github/workflows/test.yml` runs the syntax check and the full suite on every push and pull request.
+
+### Layout
+
+| File | Purpose |
+| --- | --- |
+| `locator-core.js` | Pure engine: roles, accessible names, dynamic-text heuristics, generation, locator parsing and resolution. No `chrome.*` calls. |
+| `content.js` | Page UI: cursor tracking, picking mode, overlay, frame plumbing. Runs in every frame. |
+| `background.js` | Service worker: keyboard shortcut and cross-frame relay. |
+| `popup.html` / `popup.js` | Popup: pick, verify (single or bulk), recording, page object, history with live counts, language and test-id settings. |
+| `devtools.html` / `devtools.js` / `sidebar.html` / `sidebar.js` | Elements-panel sidebar for the inspected node. |
 
 ---
 
-## Contributing
+## Privacy
 
-Contributions are welcome. If you have ideas for new features, found a bug, or want to improve the code, open an issue or submit a pull request.
-
----
+Everything runs locally in your browser. No data leaves the page. See `privacy.html`.
 
 ## License
 
-This project is licensed under the MIT License.
+MIT

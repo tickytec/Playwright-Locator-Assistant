@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Playwright Locator Assistant",
-  "version": "1.1.0",
-  "description": "Instantly generate and verify the best Playwright locators for any element on the page.",
+  "version": "2.1.0",
+  "description": "Generate and verify stable Playwright locators for any element — actions, assertions, page objects and recordings in Python, JS/TS, Java and C#.",
   "permissions": [
     "storage",
     "activeTab",
@@ -20,7 +20,7 @@
         "default": "Alt+Shift+L",
         "mac": "Command+Shift+L"
       },
-      "description": "Toggle element picking mode (use when a dropdown is open)"
+      "description": "Capture the element under the cursor (works while a dropdown is open)"
     }
   },
   "action": {
@@ -38,8 +38,17 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "locator-core.js",
+        "content.js"
+      ],
+      "all_frames": true,
+      "match_about_blank": true,
+      "run_at": "document_idle"
     }
-  ]
+  ],
+  "devtools_page": "devtools.html"
 }
